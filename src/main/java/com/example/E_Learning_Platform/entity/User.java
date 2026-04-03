@@ -10,15 +10,13 @@ import java.util.Set;
 
 import com.example.E_Learning_Platform.enums.Role;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,6 +31,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -43,6 +42,7 @@ public class User {
 
     @NotBlank(message = "Email không được để trống")
     @Email(message = "Email không đúng định dạng")
+    @Column(unique = true)
     private String email;
 
 
@@ -50,6 +50,12 @@ public class User {
     @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự")
     private String password;
 
+
+   @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    @Default
     private Set<Role> roles = new HashSet<>();
 
 }

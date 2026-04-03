@@ -35,10 +35,17 @@ public class SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
     private String secretKey;
 
-    private final String[] PUBLIC_ENDPOINTS = {
-        "/api/auth/**",
-        "/api/courses/**",
-        "/api/lessons/**"
+    // application.yaml already sets context-path=/api/v1,
+    // so /users here is exposed outside as /api/v1/users.
+    private static final String[] SWAGGER_ENDPOINTS = {
+        "/swagger-ui.html",
+        "/swagger-ui/**",
+        "/v3/api-docs/**"
+    };
+
+    private static final String[] PUBLIC_POST_ENDPOINTS = {
+        "/auth/**",
+        "/users"
     };
 
 
@@ -46,7 +53,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
         http.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINTS)
+                request.requestMatchers(SWAGGER_ENDPOINTS)
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS)
                         .permitAll()
                         .anyRequest()
                         .authenticated()

@@ -3,16 +3,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
-package com.example.E_Learning_Platform.dto.response;
+package com.example.E_Learning_Platform.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
-
-import com.example.E_Learning_Platform.enums.Role;
 
 /**
  *
@@ -22,9 +18,6 @@ import com.example.E_Learning_Platform.enums.Role;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
-    private String id;
-    private String username;
-    private String email;
-    private Set<Role> roles;
+public class IntrospectRequest {
+    private String token;
 }

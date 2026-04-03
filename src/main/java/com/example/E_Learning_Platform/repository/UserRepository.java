@@ -9,10 +9,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.E_Learning_Platform.entity.User;
 
+import java.util.Optional;
+
 /**
  *
  * @author admin
  */
-public interface UserReporitory extends JpaRepository<String, User> {
-
+public interface UserRepository extends JpaRepository<User, String> {
+    Optional<User> findByUsername(String username);
+    Optional<User> findByEmail(String email);
 }

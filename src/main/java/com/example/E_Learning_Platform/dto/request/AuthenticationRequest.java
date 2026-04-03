@@ -5,13 +5,22 @@
 
 package com.example.E_Learning_Platform.dto.request;
 
-import com.example.E_Learning_Platform.enums.Role;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
  * @author admin
  */
-public class UpdateRoleRequest {
-        private Role role;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class AuthenticationRequest {
+    private String email;
+    private String password;
 
+   
 }

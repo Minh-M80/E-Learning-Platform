@@ -10,10 +10,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
-import com.example.E_Learning_Platform.enums.Role;
-
 /**
  *
  * @author admin
@@ -22,9 +18,8 @@ import com.example.E_Learning_Platform.enums.Role;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
-    private String id;
-    private String username;
-    private String email;
-    private Set<Role> roles;
+public class AuthenticationResponse {
+  private   String token;
+
+   private boolean authenticated;
 }
