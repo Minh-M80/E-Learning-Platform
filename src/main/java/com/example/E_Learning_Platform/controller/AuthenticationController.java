@@ -6,10 +6,13 @@
 package com.example.E_Learning_Platform.controller;
 
 import com.example.E_Learning_Platform.dto.request.AuthenticationRequest;
+import com.example.E_Learning_Platform.dto.request.LogoutRequest;
 import com.example.E_Learning_Platform.dto.response.ApiResponse;
 import com.example.E_Learning_Platform.dto.response.AuthenticationResponse;
 import com.example.E_Learning_Platform.service.AuthenticationService;
+import com.nimbusds.jose.JOSEException;
 import io.swagger.v3.oas.annotations.Operation;
+import java.text.ParseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,4 +40,21 @@ public class AuthenticationController {
                 .build();
     }
 
+    @PostMapping("/refresh")
+    @Operation(security = {})
+    ApiResponse<AuthenticationResponse> refreshToken(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        var result = authenticationService.refreshToken(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/logout")
+    @Operation(security = {})
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder()
+                .message("Logout successful")
+                .build();
+    }
 }

@@ -5,6 +5,8 @@
 
 package com.example.E_Learning_Platform.configuration;
 
+import com.example.E_Learning_Platform.repository.InvalidatedTokenRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +16,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -31,7 +35,10 @@ import javax.crypto.spec.SecretKeySpec;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final InvalidatedTokenRepository invalidatedTokenRepository;
+
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
     private String secretKey;
 
@@ -90,7 +97,21 @@ public class SecurityConfig {
                 "HmacSHA256"
         );
 
-        return NimbusJwtDecoder.withSecretKey(key).build();
+        NimbusJwtDecoder nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(key).build();
+
+        return token -> {
+            Jwt jwt = nimbusJwtDecoder.decode(token);
+
+            if (!"ACCESS".equals(jwt.getClaimAsString("tokenType"))) {
+                throw new JwtException("Invalid token type");
+            }
+
+            if (invalidatedTokenRepository.existsById(jwt.getId())) {
+                throw new JwtException("Token has been invalidated");
+            }
+
+            return jwt;
+        };
     }
 
     @Bean
