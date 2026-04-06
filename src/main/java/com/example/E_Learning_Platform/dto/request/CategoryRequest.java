@@ -9,7 +9,16 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LogoutRequest {
-    private String token;
+public class CategoryRequest {
+
+
+
+
+    private String name;
+
+
+    private String description;
+
+
 
 }

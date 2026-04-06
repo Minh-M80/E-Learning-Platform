@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     USER_EXISTED(1002,"User existed", HttpStatus.BAD_REQUEST),
     USER_NOT_EXISTED(1003,"User not existed",HttpStatus.NOT_FOUND),
-    UNAUTHENTICATED(1004,"Password wrong",HttpStatus.UNAUTHORIZED);
+    UNAUTHENTICATED(1004,"Password wrong",HttpStatus.UNAUTHORIZED),
+    CATEGORY_NOT_EXISTED(1005,"Category not found",HttpStatus.NOT_FOUND);
+
 
     ErrorCode(int code,String message,HttpStatusCode statusCode){
         this.code=code;

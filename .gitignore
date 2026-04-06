@@ -13,6 +13,12 @@ buildNumber.properties
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+#doc
+entity.txt
+dto-spec.txt
+service-controller-spec.txt
+role.txt
+
 ### Spring Boot ###
 HELP.md
 application-prod.yml

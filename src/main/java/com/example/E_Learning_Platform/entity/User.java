@@ -42,12 +42,13 @@ public class User {
 
     @NotBlank(message = "Email không được để trống")
     @Email(message = "Email không đúng định dạng")
-    @Column(unique = true)
+    @Column(unique = true,nullable = false,length = 100)
     private String email;
 
 
     @NotBlank(message = "Mật khẩu không được để trống")
     @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự")
+    @Column(nullable = false)
     private String password;
 
 

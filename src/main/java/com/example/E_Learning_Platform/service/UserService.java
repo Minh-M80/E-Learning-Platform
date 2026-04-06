@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import com.example.E_Learning_Platform.dto.request.UserCreationRequest;
+import com.example.E_Learning_Platform.dto.request.UserRequest;
+import com.example.E_Learning_Platform.dto.request.UserUpdateRequest;
 import com.example.E_Learning_Platform.dto.response.UserResponse;
 import com.example.E_Learning_Platform.entity.User;
 import com.example.E_Learning_Platform.enums.Role;
@@ -69,7 +71,7 @@ public class UserService {
         }
 
 
-//        @PreAuthorize("hasAuthority('ADMIN')")
+        @PreAuthorize("hasAuthority('ADMIN')")
         @Cacheable(value = "users", key = "#id")
         public UserResponse getUser(String id){
                 return userMapper.toUserResponse(userRepository.findById(id)
@@ -85,6 +87,27 @@ public class UserService {
                 User user = userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
                 return userMapper.toUserResponse(user);
         }
+
+      public   UserResponse updateUser(UserUpdateRequest request){
+          String email = SecurityContextHolder.getContext().getAuthentication().getName();
+          log.info("Email: {}",email);
+          User user = userRepository.findByEmail(email)
+                  .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+          if (request.getUsername() != null && !request.getUsername().isBlank()) {
+              user.setUsername(request.getUsername());
+          }
+
+          if (request.getPassword() != null && !request.getPassword().isBlank()) {
+              user.setPassword(passwordEncoder.encode(request.getPassword()));
+          }
+
+                userRepository.save(user);
+                return userMapper.toUserResponse(user);
+
+        }
+
+
 
     
 }
