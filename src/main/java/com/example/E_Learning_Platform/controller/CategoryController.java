@@ -59,7 +59,7 @@ public class CategoryController {
     ApiResponse<Page<CategoryResponse>> search(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "3") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("name"));
         return ApiResponse.<Page<CategoryResponse>>builder()
                 .result(categoryService.searchCategories(keyword, pageable))

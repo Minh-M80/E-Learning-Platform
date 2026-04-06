@@ -219,11 +219,16 @@ public class AuthenticationService {
                     (expiryTime.getTime() - System.currentTimeMillis()) / 1000
             );
 
+            String redisKey = buildRefreshRedisKey(refreshJti);
+
             stringRedisTemplate.opsForValue().set(
-                    buildRefreshRedisKey(refreshJti),
+                    redisKey,
                     tokenHash,
                     Duration.ofSeconds(ttlSeconds)
             );
+            String redisValue = stringRedisTemplate.opsForValue().get(redisKey);
+            log.info("Saved refresh token to Redis successfully. key={}, valueExists={}",
+                    redisKey, redisValue );
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
@@ -233,7 +238,11 @@ public class AuthenticationService {
         String redisKey = buildRefreshRedisKey(refreshJti);
         String storedHash = stringRedisTemplate.opsForValue().get(redisKey);
 
+        log.info("Checking refresh token in Redis. key={}", redisKey);
+
         if (storedHash == null) {
+
+            log.info("Redis miss for refresh token. Falling back to DB. refreshJti={}", refreshJti);
             RefreshToken refreshToken = refreshTokenRepository.findById(refreshJti)
                     .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
@@ -245,8 +254,10 @@ public class AuthenticationService {
         }
 
         if (!storedHash.equals(hashToken(rawRefreshToken))) {
+            log.info("Refresh token hash mismatch. refreshJti={}", refreshJti);
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
+        log.info("Refresh token validated successfully. refreshJti={}", refreshJti);
     }
 
     private void revokeSession(String sessionId) {
@@ -284,6 +295,7 @@ public class AuthenticationService {
     }
 
     private String buildRefreshRedisKey(String refreshJti) {
+
         return "refresh:" + refreshJti;
     }
 

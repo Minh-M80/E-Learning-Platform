@@ -6,6 +6,7 @@
 package com.example.E_Learning_Platform.configuration;
 
 import com.example.E_Learning_Platform.repository.InvalidatedTokenRepository;
+import com.example.E_Learning_Platform.repository.RevokedSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -91,8 +92,32 @@ public class SecurityConfig {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
     }
+//    @Bean
+//    public JwtDecoder jwtDecoder() {
+//        SecretKey key = new SecretKeySpec(
+//                secretKey.getBytes(),
+//                "HmacSHA256"
+//        );
+//
+//        NimbusJwtDecoder nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(key).build();
+//
+//        return token -> {
+//            Jwt jwt = nimbusJwtDecoder.decode(token);
+//
+//            if (!"ACCESS".equals(jwt.getClaimAsString("tokenType"))) {
+//                throw new JwtException("Invalid token type");
+//            }
+//
+//            if (invalidatedTokenRepository.existsById(jwt.getId())) {
+//                throw new JwtException("Token has been invalidated");
+//            }
+//
+//            return jwt;
+//        };
+//    }
+
     @Bean
-    public JwtDecoder jwtDecoder() {
+    public JwtDecoder jwtDecoder(RevokedSessionRepository revokedSessionRepository) {
         SecretKey key = new SecretKeySpec(
                 secretKey.getBytes(),
                 "HmacSHA256"
@@ -111,9 +136,15 @@ public class SecurityConfig {
                 throw new JwtException("Token has been invalidated");
             }
 
+            String sessionId = jwt.getClaimAsString("sessionId");
+            if (sessionId == null || revokedSessionRepository.existsById(sessionId)) {
+                throw new JwtException("Session has been revoked");
+            }
+
             return jwt;
         };
     }
+
 
     @Bean
     PasswordEncoder passwordEncoder() {
