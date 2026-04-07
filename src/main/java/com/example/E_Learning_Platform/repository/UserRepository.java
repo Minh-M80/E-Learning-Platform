@@ -8,6 +8,7 @@ package com.example.E_Learning_Platform.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.E_Learning_Platform.entity.User;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
@@ -15,6 +16,7 @@ import java.util.Optional;
  *
  * @author admin
  */
+@Repository
 public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);

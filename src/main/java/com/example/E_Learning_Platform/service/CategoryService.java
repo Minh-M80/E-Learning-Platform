@@ -23,14 +23,14 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('INSTRUCTOR')")
+    @PreAuthorize("hasAuthority('ADMIN')")
      public CategoryResponse createCategory(CategoryRequest request){
 
         Category category = categoryMapper.toCategory(request);
         return categoryMapper.toCategoryResponse(categoryRepository.save(category));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('INSTRUCTOR')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public CategoryResponse updateCategory(String categoryId, CategoryRequest request){
          Category category = categoryRepository.findById(categoryId).orElseThrow(
                  () -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED)
