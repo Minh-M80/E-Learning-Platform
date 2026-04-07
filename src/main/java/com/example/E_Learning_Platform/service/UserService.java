@@ -8,6 +8,7 @@ package com.example.E_Learning_Platform.service;
 import java.util.HashSet;
 import java.util.List;
 
+import com.example.E_Learning_Platform.dto.request.RoleUpdateRequest;
 import com.example.E_Learning_Platform.dto.request.UserCreationRequest;
 import com.example.E_Learning_Platform.dto.request.UserRequest;
 import com.example.E_Learning_Platform.dto.request.UserUpdateRequest;
@@ -107,6 +108,31 @@ public class UserService {
 
         }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public UserResponse updateUserRole(String userId, RoleUpdateRequest request) {
+        log.info("Update role for userId: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Clear roles cũ và set roles mới
+        user.getRoles().clear();
+        request.getRoles().forEach(roleStr -> {
+            try {
+                user.getRoles().add(Role.valueOf(roleStr.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new AppException(ErrorCode.INVALID_ROLE);
+            }
+        });
+
+        // Đảm bảo có ít nhất 1 role
+        if (user.getRoles().isEmpty()) {
+            user.getRoles().add(Role.STUDENT);
+        }
+
+        userRepository.save(user);
+        return userMapper.toUserResponse(user);
+    }
 
 
     

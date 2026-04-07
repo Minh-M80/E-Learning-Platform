@@ -1,6 +1,7 @@
 package com.example.E_Learning_Platform.controller;
 
 import com.example.E_Learning_Platform.configuration.OpenApiConfig;
+import com.example.E_Learning_Platform.dto.request.RoleUpdateRequest;
 import com.example.E_Learning_Platform.dto.request.UserCreationRequest;
 import com.example.E_Learning_Platform.dto.request.UserRequest;
 import com.example.E_Learning_Platform.dto.request.UserUpdateRequest;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -90,6 +92,16 @@ public class UserController {
                 .build();
     }
 
+    @PutMapping("/{userId}/roles")
+
+    @Operation(summary = "Update user roles (Admin only)")
+    ApiResponse<UserResponse> updateUserRoles(
+            @PathVariable String userId,
+            @RequestBody @Valid RoleUpdateRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.updateUserRole(userId, request))
+                .build();
+    }
 
 
 

@@ -9,6 +9,8 @@ import com.example.E_Learning_Platform.exception.AppException;
 import com.example.E_Learning_Platform.exception.ErrorCode;
 import com.example.E_Learning_Platform.mapper.CourseMapper;
 import com.example.E_Learning_Platform.repository.CourseRepository;
+import com.example.E_Learning_Platform.entity.Category;
+import com.example.E_Learning_Platform.repository.CategoryRepository;
 import com.example.E_Learning_Platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final CourseMapper courseMapper;
 
@@ -53,8 +56,17 @@ public class CourseService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
+        String categoryId = request.getCategoryId();
+        if (categoryId == null || categoryId.isBlank()) {
+            throw new AppException(ErrorCode.CATEGORY_NOT_EXISTED);
+        }
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+
         Course course = courseMapper.toCourse(request);
         course.setInstructor(instructor);
+        course.setCategory(category);
 
         course = courseRepository.save(course);
         return courseMapper.toCourseResponse(course);
@@ -85,6 +97,18 @@ public class CourseService {
             }
 
             course.setInstructor(instructor);
+        }
+
+        // Update category (admin only)
+        if (request.getCategoryId() != null && !request.getCategoryId().isBlank()) {
+            if (!hasRole(Role.ADMIN.name())) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+
+            course.setCategory(category);
         }
 
         course = courseRepository.save(course);
