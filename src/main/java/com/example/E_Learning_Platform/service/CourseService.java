@@ -1,16 +1,17 @@
 package com.example.E_Learning_Platform.service;
 
 import com.example.E_Learning_Platform.dto.request.CourseRequest;
+import com.example.E_Learning_Platform.dto.request.UpdateCourseRequest;
 import com.example.E_Learning_Platform.dto.response.CourseResponse;
+import com.example.E_Learning_Platform.entity.Category;
 import com.example.E_Learning_Platform.entity.Course;
 import com.example.E_Learning_Platform.entity.User;
 import com.example.E_Learning_Platform.enums.Role;
 import com.example.E_Learning_Platform.exception.AppException;
 import com.example.E_Learning_Platform.exception.ErrorCode;
 import com.example.E_Learning_Platform.mapper.CourseMapper;
-import com.example.E_Learning_Platform.repository.CourseRepository;
-import com.example.E_Learning_Platform.entity.Category;
 import com.example.E_Learning_Platform.repository.CategoryRepository;
+import com.example.E_Learning_Platform.repository.CourseRepository;
 import com.example.E_Learning_Platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,10 +44,8 @@ public class CourseService {
             if (!isAdmin && !targetInstructorId.equals(currentUser.getId())) {
                 throw new AppException(ErrorCode.UNAUTHORIZED);
             }
-        } else {
-            if (isInstructor && !isAdmin) {
-                targetInstructorId = currentUser.getId();
-            }
+        } else if (isInstructor && !isAdmin) {
+            targetInstructorId = currentUser.getId();
         }
 
         User instructor = userRepository.findById(targetInstructorId)
@@ -73,7 +72,7 @@ public class CourseService {
     }
 
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('INSTRUCTOR')")
-    public CourseResponse updateCourse(String courseId, CourseRequest request) {
+    public CourseResponse updateCourse(String courseId, UpdateCourseRequest request) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_EXISTED));
 
@@ -83,23 +82,6 @@ public class CourseService {
 
         courseMapper.updateCourse(course, request);
 
-        // Không cho INSTRUCTOR đổi owner của course
-        if (request.getInstructorId() != null && !request.getInstructorId().isBlank()) {
-            if (!hasRole(Role.ADMIN.name())) {
-                throw new AppException(ErrorCode.UNAUTHORIZED);
-            }
-
-            User instructor = userRepository.findById(request.getInstructorId())
-                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-            if (!instructor.getRoles().contains(Role.INSTRUCTOR)) {
-                throw new AppException(ErrorCode.UNAUTHORIZED);
-            }
-
-            course.setInstructor(instructor);
-        }
-
-        // Update category (admin only)
         if (request.getCategoryId() != null && !request.getCategoryId().isBlank()) {
             if (!hasRole(Role.ADMIN.name())) {
                 throw new AppException(ErrorCode.UNAUTHORIZED);

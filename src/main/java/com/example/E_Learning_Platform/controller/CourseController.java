@@ -1,6 +1,7 @@
 package com.example.E_Learning_Platform.controller;
 
 import com.example.E_Learning_Platform.dto.request.CourseRequest;
+import com.example.E_Learning_Platform.dto.request.UpdateCourseRequest;
 import com.example.E_Learning_Platform.dto.response.ApiResponse;
 import com.example.E_Learning_Platform.dto.response.CourseResponse;
 import com.example.E_Learning_Platform.service.CourseService;
@@ -48,7 +49,7 @@ public class CourseController {
     )
     ApiResponse<CourseResponse> updateCourse(
             @PathVariable String courseId,
-            @RequestBody CourseRequest request) {
+            @RequestBody UpdateCourseRequest request) {
         log.info("Controller:updateCourse");
         return ApiResponse.<CourseResponse>builder()
                 .result(courseService.updateCourse(courseId, request))
