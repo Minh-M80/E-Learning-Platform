@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.E_Learning_Platform.dto.request.ForgotPasswordRequest;
+import com.example.E_Learning_Platform.dto.request.ResetPasswordRequest;
+import com.example.E_Learning_Platform.service.PasswordResetService;
+
 
 /**
  *
@@ -30,6 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
+    private final PasswordResetService passwordResetService;
+
     @PostMapping("/login")
     @Operation(security = {})
     ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest request){
@@ -57,4 +63,23 @@ public class AuthenticationController {
                 .message("Logout successful")
                 .build();
     }
+
+    @PostMapping("/forgot-password")
+@Operation(security = {})
+ApiResponse<Void> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+    passwordResetService.forgotPassword(request.getEmail());
+    return ApiResponse.<Void>builder()
+            .message("Reset token has been sent to email")
+            .build();
+}
+
+@PostMapping("/reset-password")
+@Operation(security = {})
+ApiResponse<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
+    passwordResetService.resetPassword(request);
+    return ApiResponse.<Void>builder()
+            .message("Password reset successful")
+            .build();
+}
+
 }

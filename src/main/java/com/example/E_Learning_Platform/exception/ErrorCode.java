@@ -12,7 +12,9 @@ public enum ErrorCode {
     CATEGORY_NOT_EXISTED(1005,"Category not found",HttpStatus.NOT_FOUND),
     COURSE_NOT_EXISTED(1006,"Course not found",HttpStatus.NOT_FOUND),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
-    INVALID_ROLE(1008,"Role not valid",HttpStatus.BAD_REQUEST);
+    INVALID_ROLE(1008,"Role not valid",HttpStatus.BAD_REQUEST),
+    INVALID_RESET_TOKEN(1009, "Reset token is invalid or expired", HttpStatus.BAD_REQUEST);
+
     ErrorCode(int code,String message,HttpStatusCode statusCode){
         this.code=code;
         this.message=message;
