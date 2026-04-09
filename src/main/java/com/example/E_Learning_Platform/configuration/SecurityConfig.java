@@ -51,18 +51,21 @@ public class SecurityConfig {
         "/v3/api-docs/**"
     };
 
-    private static final String[] PUBLIC_POST_ENDPOINTS = {
+    private static final String[] PUBLIC_ENDPOINTS = {
         "/auth/**",
-        "/users",
-
+        "/error"
     };
 
-
+    private static final String[] PUBLIC_POST_ENDPOINTS = {
+        "/users",
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
         http.authorizeHttpRequests(request ->
                 request.requestMatchers(SWAGGER_ENDPOINTS)
+                        .permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINTS)
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS)
                         .permitAll()

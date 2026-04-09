@@ -112,6 +112,35 @@ public class AuthenticationService {
                 .build();
     }
 
+    public AuthenticationResponse googleLogin(com.example.E_Learning_Platform.dto.response.GoogleUserResponse googleUser) {
+        log.info("Google Login for email: {}", googleUser.getEmail());
+
+        var user = userRepository.findByEmail(googleUser.getEmail())
+                .orElseGet(() -> {
+                    com.example.E_Learning_Platform.entity.User newUser = com.example.E_Learning_Platform.entity.User.builder()
+                            .email(googleUser.getEmail())
+                            .username(googleUser.getName())
+                            // Create a random password since user logs in via Google
+                            .password(new BCryptPasswordEncoder(10).encode(UUID.randomUUID().toString()))
+                            .build();
+                    newUser.getRoles().add(com.example.E_Learning_Platform.enums.Role.STUDENT);
+                    return userRepository.save(newUser);
+                });
+
+        String sessionId = UUID.randomUUID().toString();
+
+        String accessToken = generateToken(user, ACCESS_TOKEN_EXPIRY_SECONDS, "ACCESS", sessionId);
+        String refreshToken = generateToken(user, REFRESH_TOKEN_EXPIRY_SECONDS, "REFRESH", sessionId);
+
+        saveRefreshToken(user.getEmail(), sessionId, refreshToken);
+
+        return AuthenticationResponse.builder()
+                .token(accessToken)
+                .refreshToken(refreshToken)
+                .authenticated(true)
+                .build();
+    }
+
     private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
