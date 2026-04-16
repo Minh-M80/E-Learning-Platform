@@ -9,6 +9,12 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
+@Table(
+        name = "lesson",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"course_id", "order_index"})
+        }
+)
 public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

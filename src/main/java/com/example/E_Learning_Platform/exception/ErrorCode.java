@@ -13,7 +13,11 @@ public enum ErrorCode {
     COURSE_NOT_EXISTED(1006,"Course not found",HttpStatus.NOT_FOUND),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_ROLE(1008,"Role not valid",HttpStatus.BAD_REQUEST),
-    INVALID_RESET_TOKEN(1009, "Reset token is invalid or expired", HttpStatus.BAD_REQUEST);
+    INVALID_RESET_TOKEN(1009, "Reset token is invalid or expired", HttpStatus.BAD_REQUEST),
+    LESSON_ORDER_DUPLICATED(1010,"Lesson duplicated",HttpStatus.BAD_REQUEST),
+    LESSON_NOT_EXISTED(1011,"Lesson not found",HttpStatus.NOT_FOUND),
+    COURSE_EXISTED(1012,"Course already exists in cart",HttpStatus.BAD_REQUEST);
+
 
     ErrorCode(int code,String message,HttpStatusCode statusCode){
         this.code=code;
