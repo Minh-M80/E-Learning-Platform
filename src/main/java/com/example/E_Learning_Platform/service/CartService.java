@@ -6,6 +6,7 @@ import com.example.E_Learning_Platform.entity.Cart;
 import com.example.E_Learning_Platform.entity.CartItem;
 import com.example.E_Learning_Platform.entity.Course;
 import com.example.E_Learning_Platform.entity.User;
+import com.example.E_Learning_Platform.enums.Role;
 import com.example.E_Learning_Platform.exception.AppException;
 import com.example.E_Learning_Platform.exception.ErrorCode;
 import com.example.E_Learning_Platform.mapper.CartMapper;
@@ -41,13 +42,18 @@ public class CartService {
 
     @Transactional
     public CartResponse addCourseToCart(String courseId){
-        User user = getCurrentUser();
-        Cart cart = createOrGetCart(user);
+        User currentUser = getCurrentUser();
+        Cart cart = createOrGetCart(currentUser);
+
+
 
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(
                         () -> new AppException(ErrorCode.COURSE_NOT_EXISTED)
                 );
+//        log.info("Course:{}",course.getThumbnail());
+
+        validateCanAddCourse(currentUser,course,cart);
 
         cartItemService.addCourseToCart(cart,course);
 
@@ -72,15 +78,38 @@ public class CartService {
         cartItemService.clearCart(cart.getId());
     }
 
-    public boolean isCourseInCart(String userId, String courseId) {
-        return cartRepository.findByUser_Id(userId)
-                .map(cart -> cartItemService.isCourseInCart(cart.getId(), courseId))
-                .orElse(false);
+    public boolean isMyCourseInCart(String courseId) {
+        User currentUser = getCurrentUser();
+        Cart cart = createOrGetCart(currentUser);
+        return cartItemService.isCourseInCart(cart.getId(), courseId);
+    }
+
+    private boolean isCourseInCart(String userId, String courseId) {
+        User currentUser = getCurrentUser();
+
+        if (hasRole(Role.ADMIN.name())) {
+            return cartRepository.findByUser_Id(userId)
+                    .map(cart -> cartItemService.isCourseInCart(cart.getId(), courseId))
+                    .orElse(false);
+        }
+
+        if (!currentUser.getId().equals(userId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Cart cart = createOrGetCart(currentUser);
+        return cartItemService.isCourseInCart(cart.getId(), courseId);
     }
 
 
     @Transactional
     public CartResponse createCartIfNotExists(String userId){
+        User currentUser = getCurrentUser();
+
+        if (!hasRole(Role.ADMIN.name()) && !currentUser.getId().equals(userId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -113,6 +142,7 @@ public class CartService {
         response.setItems(items);
         response.setTotalItems(items.size());
 
+
         return response;
 
     }
@@ -127,5 +157,33 @@ public class CartService {
                 .orElseThrow(
                         () -> new AppException(ErrorCode.USER_NOT_EXISTED)
                 );
+    }
+
+    private boolean hasRole(String role) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getAuthorities()
+                .stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(role));
+    }
+
+
+    private void validateCanAddCourse(User currentUser, Course course, Cart cart) {
+        boolean isOwnCourse = course.getInstructor() != null
+                && course.getInstructor().getId().equals(currentUser.getId());
+
+        if (isOwnCourse) {
+            throw new AppException(ErrorCode.CANNOT_ADD_OWN_COURSE);
+        }
+
+        boolean alreadyInCart = cartItemService.isCourseInCart(cart.getId(), course.getId());
+        if (alreadyInCart) {
+            throw new AppException(ErrorCode.COURSE_EXISTED);
+        }
+
+        // TODO: khi co enrollment/order thi mo ra
+        // boolean alreadyPurchased = enrollmentService.hasEnrolled(currentUser.getId(), course.getId());
+        // if (alreadyPurchased) {
+        //     throw new AppException(ErrorCode.COURSE_ALREADY_PURCHASED);
+        // }
     }
 }

@@ -16,7 +16,10 @@ public enum ErrorCode {
     INVALID_RESET_TOKEN(1009, "Reset token is invalid or expired", HttpStatus.BAD_REQUEST),
     LESSON_ORDER_DUPLICATED(1010,"Lesson duplicated",HttpStatus.BAD_REQUEST),
     LESSON_NOT_EXISTED(1011,"Lesson not found",HttpStatus.NOT_FOUND),
-    COURSE_EXISTED(1012,"Course already exists in cart",HttpStatus.BAD_REQUEST);
+    COURSE_EXISTED(1012,"Course already exists in cart",HttpStatus.BAD_REQUEST),
+    CART_ITEM_NOT_FOUND(1013, "Course không tồn tại trong giỏ hàng",HttpStatus.BAD_REQUEST),
+    CANNOT_ADD_OWN_COURSE(1014,"Cannot add own course",HttpStatus.BAD_REQUEST);
+
 
 
     ErrorCode(int code,String message,HttpStatusCode statusCode){

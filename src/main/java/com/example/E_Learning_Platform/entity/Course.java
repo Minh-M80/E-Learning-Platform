@@ -44,4 +44,16 @@ public class Course {
     @OrderBy("orderIndex ASC")
     @Builder.Default
     private Set<Lesson> lessons = new HashSet<>();
+
+    @OneToMany(mappedBy = "course")
+    @Builder.Default
+    private Set<CartItem> cartItems = new HashSet<>();
+
+    @OneToMany(mappedBy = "course")
+    @Builder.Default
+    private Set<OrderItem> orderItems = new HashSet<>();
+
+    @OneToMany(mappedBy = "course")
+    @Builder.Default
+    private Set<Enrollment> enrollments = new HashSet<>();
 }

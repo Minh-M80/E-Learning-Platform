@@ -5,6 +5,7 @@ import com.example.E_Learning_Platform.dto.response.CartItemResponse;
 import com.example.E_Learning_Platform.entity.Cart;
 import com.example.E_Learning_Platform.entity.CartItem;
 import com.example.E_Learning_Platform.entity.Course;
+import com.example.E_Learning_Platform.entity.User;
 import com.example.E_Learning_Platform.exception.AppException;
 import com.example.E_Learning_Platform.exception.ErrorCode;
 import com.example.E_Learning_Platform.mapper.CartItemMapper;
@@ -40,13 +41,11 @@ public class CartItemService {
     }
 
 
+
     @Transactional
     public CartItem addCourseToCart(Cart cart, Course course){
-        boolean exists = cartItemRepository.existsByCart_IdAndCourse_Id(cart.getId(),course.getId());
 
-        if(exists){
-            throw new AppException(ErrorCode.COURSE_EXISTED);
-        }
+
 
         CartItem cartItem = CartItem.builder()
                 .cart(cart)
@@ -58,8 +57,12 @@ public class CartItemService {
     }
 
     @Transactional
-    public void removeCourseFromCart(String cardId,String courseId){
-        cartItemRepository.deleteByCart_IdAndCourse_Id(cardId,courseId);
+    public void removeCourseFromCart(String cartId,String courseId){
+        boolean exists = cartItemRepository.existsByCart_IdAndCourse_Id(cartId, courseId);
+        if (!exists) {
+            throw new AppException(ErrorCode.CART_ITEM_NOT_FOUND);
+        }
+        cartItemRepository.deleteByCart_IdAndCourse_Id(cartId,courseId);
     }
 
     @Transactional
@@ -70,6 +73,8 @@ public class CartItemService {
 
 
     public boolean isCourseInCart(String cartId,String courseId){
+
+
         return cartItemRepository.existsByCart_IdAndCourse_Id(cartId,courseId);
     }
 
