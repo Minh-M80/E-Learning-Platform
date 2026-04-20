@@ -18,7 +18,14 @@ public enum ErrorCode {
     LESSON_NOT_EXISTED(1011,"Lesson not found",HttpStatus.NOT_FOUND),
     COURSE_EXISTED(1012,"Course already exists in cart",HttpStatus.BAD_REQUEST),
     CART_ITEM_NOT_FOUND(1013, "Course không tồn tại trong giỏ hàng",HttpStatus.BAD_REQUEST),
-    CANNOT_ADD_OWN_COURSE(1014,"Cannot add own course",HttpStatus.BAD_REQUEST);
+    CANNOT_ADD_OWN_COURSE(1014,"Cannot add own course",HttpStatus.BAD_REQUEST),
+
+    CART_NOT_FOUND(1015,"Cart not found",HttpStatus.NOT_FOUND),
+
+    CART_EMPTY(1016,"Cart is empty",HttpStatus.BAD_REQUEST),
+    ORDER_NOTOUND(1017, "Order not found", HttpStatus.NOT_FOUND),
+    ENROLLMENT_EXISTED(1018, "User already enrolled this course", HttpStatus.BAD_REQUEST);
+
 
 
 

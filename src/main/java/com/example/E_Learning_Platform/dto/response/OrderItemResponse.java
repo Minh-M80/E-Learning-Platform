@@ -12,6 +12,6 @@ public class OrderItemResponse {
     private String courseId;
     private String courseTitle;
     private String thumbnail;
-//    private String instructorName;
+    private String instructorName;
     private BigDecimal priceAtPurchase;
 }
