@@ -24,7 +24,12 @@ public enum ErrorCode {
 
     CART_EMPTY(1016,"Cart is empty",HttpStatus.BAD_REQUEST),
     ORDER_NOTOUND(1017, "Order not found", HttpStatus.NOT_FOUND),
-    ENROLLMENT_EXISTED(1018, "User already enrolled this course", HttpStatus.BAD_REQUEST);
+    ENROLLMENT_EXISTED(1018, "User already enrolled this course", HttpStatus.BAD_REQUEST),
+    ORDER_INVALID_STATUS(1019, "Order status is not valid for this action", HttpStatus.BAD_REQUEST),
+    PAYMENT_INVALID_SIGNATURE(1020, "VNPay signature is invalid", HttpStatus.BAD_REQUEST),
+    PAYMENT_INVALID_AMOUNT(1021, "Payment amount does not match order", HttpStatus.BAD_REQUEST),
+    PAYMENT_CONFIG_INVALID(1022, "VNPay configuration is invalid", HttpStatus.INTERNAL_SERVER_ERROR),
+    PAYMENT_RESPONSE_INVALID(1023, "VNPay response data is invalid", HttpStatus.BAD_REQUEST);
 
 
 

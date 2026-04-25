@@ -53,6 +53,7 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
         "/auth/**",
+        "/payments/vnpay-return",
         "/error"
     };
 
