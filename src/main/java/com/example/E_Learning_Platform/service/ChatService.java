@@ -39,11 +39,23 @@ public class ChatService {
                 .limit(8)
                 .toList();
 
-        String context = allowed.stream().map(Document::getText).collect(Collectors.joining("\n---\n"));
+        String context = allowed.stream()
+                .map(d -> {
+                    String type = String.valueOf(d.getMetadata().getOrDefault("entityType", "unknown"));
+                    String entityId = String.valueOf(d.getMetadata().getOrDefault("entityId", "n/a"));
+                    String chunkIndex = String.valueOf(d.getMetadata().getOrDefault("chunkIndex", "-"));
+                    return "[type=%s, entityId=%s, chunk=%s]\n%s".formatted(type, entityId, chunkIndex, d.getText());
+                })
+                .collect(Collectors.joining("\n\n---\n\n"));
+
         String prompt = """
-                Bạn là trợ lý E-learning.
-                Chỉ dùng CONTEXT. Không suy đoán.
-                Nếu thiếu dữ liệu: "Không đủ thông tin".
+                Ban la tro ly E-learning.
+                Chi dung du lieu trong CONTEXT, khong bia them.
+                Neu thieu du lieu, tra loi dung: "Khong du thong tin".
+                Tra loi theo format:
+                1) Tra loi ngan gon
+                2) Chi tiet chinh
+                3) Nguon tham chieu (entityType/entityId neu co)
                 CONTEXT:
                 %s
 
@@ -54,7 +66,7 @@ public class ChatService {
         String answer = chatClientBuilder.build().prompt().user(prompt).call().content();
 
         ChatHistory h = chatHistoryRepository.save(ChatHistory.builder()
-                .userId(scope.userId()) // không tin userId từ request
+                .userId(scope.userId()) // khong tin userId tu request
                 .userMessage(req.message())
                 .aiResponse(answer)
                 .createdAt(LocalDateTime.now())

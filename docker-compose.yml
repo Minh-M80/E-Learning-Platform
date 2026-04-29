@@ -1,0 +1,26 @@
+services:
+  redis-dev:
+    image: redis:7-alpine
+    container_name: redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  elearning-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: elearning-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: elearning_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  redis_data:
+  postgres_data:
