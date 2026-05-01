@@ -18,6 +18,7 @@ import com.example.E_Learning_Platform.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -160,6 +161,11 @@ public class LessonService {
     }
 
 
+    @Cacheable(
+            value = "lessonsByCourseForLearner",
+            key = "#courseId + ':' + authentication?.name",
+            condition = "authentication != null"
+    )
     public List<LessonResponse> getLessonsByCourse(String courseId){
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(

@@ -15,6 +15,9 @@ import com.example.E_Learning_Platform.repository.CourseRepository;
 import com.example.E_Learning_Platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +36,12 @@ public class CourseService {
     private final CourseMapper courseMapper;
 
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('INSTRUCTOR')")
+    @Caching(evict = {
+            @CacheEvict(value = "allCourses", allEntries = true),
+            @CacheEvict(value = "courseSearch", allEntries = true),
+            @CacheEvict(value = "coursesByCategory", allEntries = true),
+            @CacheEvict(value = "coursesByInstructor", allEntries = true)
+    })
     public CourseResponse createCourse(CourseRequest request) {
         User currentUser = getCurrentUser();
         boolean isAdmin = hasRole(Role.ADMIN.name());
@@ -72,6 +81,14 @@ public class CourseService {
     }
 
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('INSTRUCTOR')")
+
+    @Caching(evict = {
+            @CacheEvict(value = "courseById", key = "#courseId"),
+            @CacheEvict(value = "allCourses", allEntries = true),
+            @CacheEvict(value = "courseSearch", allEntries = true),
+            @CacheEvict(value = "coursesByCategory", allEntries = true),
+            @CacheEvict(value = "coursesByInstructor", allEntries = true)
+    })
     public CourseResponse updateCourse(String courseId, UpdateCourseRequest request) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_EXISTED));
@@ -98,6 +115,15 @@ public class CourseService {
     }
 
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('INSTRUCTOR')")
+
+    @Caching(evict = {
+            @CacheEvict(value = "courseById", key = "#courseId"),
+            @CacheEvict(value = "allCourses", allEntries = true),
+            @CacheEvict(value = "courseSearch", allEntries = true),
+            @CacheEvict(value = "coursesByCategory", allEntries = true),
+            @CacheEvict(value = "coursesByInstructor", allEntries = true),
+            @CacheEvict(value = "lessonsByCourse", allEntries = true)
+    })
     public void deleteCourse(String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_EXISTED));
@@ -109,6 +135,7 @@ public class CourseService {
         courseRepository.delete(course);
     }
 
+    @Cacheable(value = "courseById", key = "#courseId")
     public CourseResponse getCourseById(String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_EXISTED));
@@ -116,21 +143,26 @@ public class CourseService {
         return courseMapper.toCourseResponse(course);
     }
 
+    @Cacheable(value = "allCourses", key = "#pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort")
     public Page<CourseResponse> getAllCourses(Pageable pageable) {
         return courseRepository.findAll(pageable)
                 .map(courseMapper::toCourseResponse);
     }
 
+    @Cacheable(value = "courseSearch", key = "#keyword + ':' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort")
     public Page<CourseResponse> searchCourses(String keyword, Pageable pageable) {
         return courseRepository.findByTitleContainingIgnoreCase(keyword, pageable)
                 .map(courseMapper::toCourseResponse);
     }
 
+    @Cacheable(value = "coursesByCategory", key = "#categoryId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort")
     public Page<CourseResponse> getCoursesByCategory(String categoryId, Pageable pageable) {
         return courseRepository.findByCategory_Id(categoryId, pageable)
                 .map(courseMapper::toCourseResponse);
     }
 
+
+    @Cacheable(value = "coursesByInstructor", key = "#instructorId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort")
     public Page<CourseResponse> getCoursesByInstructor(String instructorId, Pageable pageable) {
         return courseRepository.findByInstructor_Id(instructorId, pageable)
                 .map(courseMapper::toCourseResponse);
