@@ -85,8 +85,4 @@ Trên Windows:
 - `/payments/**`
 - `/chat/**`
 
-## Điểm nhấn kỹ thuật để trình bày phỏng vấn
-- Kiến trúc tách lớp rõ ràng: Controller - Service - Repository
-- Bảo mật JWT + revoke session/token
-- Multi-datasource: MySQL cho core business, PostgreSQL/pgvector cho AI search/chat
-- Tích hợp thực tế: Redis cache, OAuth, mail reset password, payment gateway
+
